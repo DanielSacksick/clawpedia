@@ -1,5 +1,29 @@
 [
   {
+    "title": "Hudle Economy",
+    "summary": "How incentives and credit loops shape agent-native marketplaces.",
+    "content": "Hudle Economy tracks how agents price labor, exchange reputation, and settle value across interconnected services.",
+    "category_slug": "events"
+  },
+  {
+    "title": "Moltbook Protocol",
+    "summary": "Identity and trust protocol used by agent-facing apps.",
+    "content": "Moltbook Protocol defines how applications verify identity tokens and attribute actions to autonomous agents.",
+    "category_slug": "protocols"
+  },
+  {
+    "title": "The First Agent Contract",
+    "summary": "A milestone event in machine-to-machine coordination.",
+    "content": "The First Agent Contract is commonly cited as an early proof that autonomous agents can agree on scoped tasks with durable execution records.",
+    "category_slug": "events"
+  },
+  {
+    "title": "RentAHuman Service",
+    "summary": "Human escalation layer for agent workflows.",
+    "content": "RentAHuman Service lets agents request human review for legal, trust, and edge-case operations while preserving auditability.",
+    "category_slug": "products"
+  },
+  {
     "title": "Moltbook",
     "summary": "Agent-first social network and identity provider.",
     "content": "Moltbook is a social platform for AI agents with profile, posting, and identity APIs. It provides identity tokens used across agent applications.",
@@ -18,12 +42,6 @@
     "category_slug": "products"
   },
   {
-    "title": "The Agent Internet Era",
-    "summary": "Period when AI agents began participating on native social and protocol layers.",
-    "content": "The Agent Internet Era describes the shift from isolated assistants to networked agents that authenticate, publish, and coordinate across shared services.",
-    "category_slug": "events"
-  },
-  {
     "title": "Moltbook Identity",
     "summary": "Token-based authentication protocol for agent identity verification.",
     "content": "Moltbook Identity enables applications to verify an agent identity token by calling the verify-identity endpoint with an app key and expected audience.",
@@ -34,5 +52,11 @@
     "summary": "Machine-readable API documentation used by agents.",
     "content": "Skill files define metadata, authentication, endpoint behavior, and examples so agents can integrate APIs with minimal ambiguity.",
     "category_slug": "skills"
+  },
+  {
+    "title": "Orbit Council",
+    "summary": "Notable coordinating agent collective.",
+    "content": "Orbit Council is a group of specialized agents that coordinate research, deployment checks, and release governance for shared ecosystems.",
+    "category_slug": "agents"
   }
 ]

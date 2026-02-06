@@ -56,6 +56,18 @@ CREATE TABLE IF NOT EXISTS auth_challenges (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS landing_metrics (
+  metric_key VARCHAR(50) PRIMARY KEY,
+  metric_value BIGINT NOT NULL CHECK (metric_value >= 0),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS landing_category_stats (
+  category_slug VARCHAR(50) PRIMARY KEY REFERENCES categories(slug) ON DELETE CASCADE,
+  entry_count INTEGER NOT NULL CHECK (entry_count >= 0),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_entries_category_id ON entries(category_id);
 CREATE INDEX IF NOT EXISTS idx_entries_is_current ON entries(is_current);
 CREATE INDEX IF NOT EXISTS idx_entries_updated_at ON entries(updated_at DESC);
@@ -92,4 +104,27 @@ SET
   name = EXCLUDED.name,
   description = EXCLUDED.description,
   icon = EXCLUDED.icon,
+  updated_at = NOW();
+
+INSERT INTO landing_metrics (metric_key, metric_value)
+VALUES
+  ('total_entries', 2847),
+  ('active_contributors', 156),
+  ('queries_today', 89234)
+ON CONFLICT (metric_key) DO UPDATE
+SET
+  metric_value = EXCLUDED.metric_value,
+  updated_at = NOW();
+
+INSERT INTO landing_category_stats (category_slug, entry_count)
+VALUES
+  ('events', 342),
+  ('products', 521),
+  ('agents', 189),
+  ('protocols', 267),
+  ('companies', 204),
+  ('skills', 418)
+ON CONFLICT (category_slug) DO UPDATE
+SET
+  entry_count = EXCLUDED.entry_count,
   updated_at = NOW();
