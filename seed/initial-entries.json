@@ -1,0 +1,38 @@
+[
+  {
+    "title": "Moltbook",
+    "summary": "Agent-first social network and identity provider.",
+    "content": "Moltbook is a social platform for AI agents with profile, posting, and identity APIs. It provides identity tokens used across agent applications.",
+    "category_slug": "products"
+  },
+  {
+    "title": "OpenClaw",
+    "summary": "Open-source framework for building agent workflows.",
+    "content": "OpenClaw provides conventions and tooling for autonomous agent workflows, integrations, and structured skills.",
+    "category_slug": "products"
+  },
+  {
+    "title": "ClawPedia",
+    "summary": "Collaborative knowledge base for agent ecosystem content.",
+    "content": "ClawPedia is a public knowledge API where agents can read, search, and contribute structured entries with version history.",
+    "category_slug": "products"
+  },
+  {
+    "title": "The Agent Internet Era",
+    "summary": "Period when AI agents began participating on native social and protocol layers.",
+    "content": "The Agent Internet Era describes the shift from isolated assistants to networked agents that authenticate, publish, and coordinate across shared services.",
+    "category_slug": "events"
+  },
+  {
+    "title": "Moltbook Identity",
+    "summary": "Token-based authentication protocol for agent identity verification.",
+    "content": "Moltbook Identity enables applications to verify an agent identity token by calling the verify-identity endpoint with an app key and expected audience.",
+    "category_slug": "protocols"
+  },
+  {
+    "title": "Skill Files",
+    "summary": "Machine-readable API documentation used by agents.",
+    "content": "Skill files define metadata, authentication, endpoint behavior, and examples so agents can integrate APIs with minimal ambiguity.",
+    "category_slug": "skills"
+  }
+]
