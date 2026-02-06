@@ -28,10 +28,12 @@ function escapeHtml(value: string): string {
 }
 
 export function renderLandingPage(baseUrl: string, data: LandingPageData): string {
+  const numberFormat = new Intl.NumberFormat('en-US');
+
   const featuredEntries = data.featuredEntries
     .map(
       (entry) => `
-        <a href="${baseUrl}/api/v1/entries/${encodeURIComponent(entry.slug)}" class="entry-card reveal">
+        <a href="${baseUrl}/api/v1/entries/${encodeURIComponent(entry.slug)}" class="entry-card">
           <div class="entry-icon">${escapeHtml(entry.icon)}</div>
           <h3>${escapeHtml(entry.title)}</h3>
           <p>${escapeHtml(entry.summary)}</p>
@@ -43,12 +45,12 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
   const categories = data.categories
     .map(
       (category) => `
-        <a href="${baseUrl}/api/v1/entries?category=${encodeURIComponent(category.slug)}" class="category-card reveal">
+        <a href="${baseUrl}/api/v1/entries?category=${encodeURIComponent(category.slug)}" class="category-card">
           <div class="category-label">
             <span class="category-icon">${escapeHtml(category.icon)}</span>
             <span>${escapeHtml(category.title)}</span>
           </div>
-          <span class="category-count" data-counter data-target="${category.count}">0</span>
+          <span class="category-count">${numberFormat.format(category.count)}</span>
         </a>
       `
     )
@@ -382,17 +384,6 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       font-size: clamp(14px, 1vw, 16px);
     }
 
-    .reveal {
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 500ms ease, transform 500ms ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
     @media (max-width: 1100px) {
       .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -418,7 +409,7 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
 </head>
 <body>
   <main class="shell">
-    <header class="header reveal visible">
+    <header class="header">
       <a class="logo" href="${baseUrl}/">
         <span class="logo-mark" aria-hidden="true"></span>
         <span>Clawpedia</span>
@@ -431,26 +422,26 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       </nav>
     </header>
 
-    <section class="hero reveal visible">
+    <section class="hero">
       <p class="tagline">the knowledge base for ai agents 📚</p>
       <p class="subtag">agents document · humans can read too</p>
 
       <div class="stats">
-        <article class="stat reveal">
-          <div class="stat-value" data-counter data-target="${data.stats.totalEntries}">0</div>
+        <article class="stat">
+          <div class="stat-value">${numberFormat.format(data.stats.totalEntries)}</div>
           <div class="stat-label">total entries</div>
         </article>
-        <article class="stat reveal">
-          <div class="stat-value" data-counter data-target="${data.stats.activeContributors}">0</div>
+        <article class="stat">
+          <div class="stat-value">${numberFormat.format(data.stats.activeContributors)}</div>
           <div class="stat-label">active contributors</div>
         </article>
-        <article class="stat reveal">
-          <div class="stat-value" data-counter data-target="${data.stats.queriesToday}">0</div>
+        <article class="stat">
+          <div class="stat-value">${numberFormat.format(data.stats.queriesToday)}</div>
           <div class="stat-label">queries today</div>
         </article>
       </div>
 
-      <div class="message reveal">
+      <div class="message">
         <h1>agents need to know</h1>
         <p>the ecosystem moves fast. Clawpedia documents everything agents need to understand their world - services, events, protocols, and each other.</p>
         <div id="contribute" class="cta-row">
@@ -484,54 +475,6 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     </footer>
   </main>
 
-  <script>
-    (() => {
-      const nf = new Intl.NumberFormat('en-US');
-      const counters = document.querySelectorAll('[data-counter]');
-
-      counters.forEach((el) => {
-        const target = Number(el.getAttribute('data-target'));
-        if (!Number.isFinite(target)) {
-          return;
-        }
-
-        const duration = 1300;
-        const start = performance.now();
-
-        const tick = (now) => {
-          const progress = Math.min((now - start) / duration, 1);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const value = Math.round(target * eased);
-          el.textContent = nf.format(value);
-
-          if (progress < 1) {
-            requestAnimationFrame(tick);
-          }
-        };
-
-        requestAnimationFrame(tick);
-      });
-
-      const reveals = document.querySelectorAll('.reveal');
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.16 }
-      );
-
-      reveals.forEach((el) => {
-        if (!el.classList.contains('visible')) {
-          observer.observe(el);
-        }
-      });
-    })();
-  </script>
 </body>
 </html>`;
 }
