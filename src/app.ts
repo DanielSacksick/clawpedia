@@ -20,9 +20,9 @@ if (!process.env.MY_DOMAIN) {
 
 const FALLBACK_LANDING_DATA: LandingPageData = {
   stats: {
-    totalEntries: 2847,
-    activeContributors: 156,
-    queriesToday: 89234
+    totalEntries: 0,
+    activeContributors: 0,
+    queriesToday: 0
   },
   featuredEntries: [
     {
@@ -51,12 +51,12 @@ const FALLBACK_LANDING_DATA: LandingPageData = {
     }
   ],
   categories: [
-    { slug: 'events', title: 'Events & History', icon: '🌍', count: 342 },
-    { slug: 'products', title: 'Services & Products', icon: '🛠️', count: 521 },
-    { slug: 'agents', title: 'Notable Agents', icon: '🤖', count: 189 },
-    { slug: 'protocols', title: 'Protocols & Standards', icon: '📡', count: 267 },
-    { slug: 'companies', title: 'Agent-Friendly Companies', icon: '🏢', count: 204 },
-    { slug: 'skills', title: 'Skills & Capabilities', icon: '🎯', count: 418 }
+    { slug: 'events', title: 'Events & History', icon: '🌍', count: 0 },
+    { slug: 'products', title: 'Services & Products', icon: '🛠️', count: 0 },
+    { slug: 'agents', title: 'Notable Agents', icon: '🤖', count: 0 },
+    { slug: 'protocols', title: 'Protocols & Standards', icon: '📡', count: 0 },
+    { slug: 'companies', title: 'Agent-Friendly Companies', icon: '🏢', count: 0 },
+    { slug: 'skills', title: 'Skills & Capabilities', icon: '🎯', count: 0 }
   ]
 };
 
@@ -86,7 +86,7 @@ async function loadLandingData(): Promise<LandingPageData> {
   const categoryOrder = ['events', 'products', 'agents', 'protocols', 'companies', 'skills'];
 
   try {
-    const [metricsResult, featuredResult, categoriesResult] = await Promise.all([
+    const [metricsResult, realStatsResult, featuredResult, categoriesResult] = await Promise.all([
       pool.query<{ metric_key: string; metric_value: string }>(
         `
           SELECT metric_key, metric_value::text
@@ -94,6 +94,16 @@ async function loadLandingData(): Promise<LandingPageData> {
           WHERE metric_key = ANY($1::text[])
         `,
         [['total_entries', 'active_contributors', 'queries_today']]
+      ),
+      pool.query<{ total_entries: number; active_contributors: number; queries_today: number }>(
+        `
+          SELECT
+            COUNT(*)::int AS total_entries,
+            COUNT(DISTINCT author_agent_id)::int AS active_contributors,
+            COALESCE(SUM(view_count), 0)::int AS queries_today
+          FROM entries
+          WHERE is_current = TRUE
+        `
       ),
       pool.query<{ slug: string; title: string; summary: string | null; icon: string }>(
         `
@@ -133,15 +143,20 @@ async function loadLandingData(): Promise<LandingPageData> {
     for (const metric of metricsResult.rows) {
       metricMap.set(metric.metric_key, Number.parseInt(metric.metric_value, 10));
     }
+    const realStats = realStatsResult.rows[0] ?? {
+      total_entries: 0,
+      active_contributors: 0,
+      queries_today: 0
+    };
 
     const categoryMap = new Map(categoriesResult.rows.map((category) => [category.slug, category]));
 
     return {
       stats: {
-        totalEntries: metricMap.get('total_entries') ?? FALLBACK_LANDING_DATA.stats.totalEntries,
+        totalEntries: metricMap.get('total_entries') ?? realStats.total_entries,
         activeContributors:
-          metricMap.get('active_contributors') ?? FALLBACK_LANDING_DATA.stats.activeContributors,
-        queriesToday: metricMap.get('queries_today') ?? FALLBACK_LANDING_DATA.stats.queriesToday
+          metricMap.get('active_contributors') ?? realStats.active_contributors,
+        queriesToday: metricMap.get('queries_today') ?? realStats.queries_today
       },
       featuredEntries:
         featuredResult.rows.length > 0

@@ -93,50 +93,50 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     a { color: inherit; text-decoration: none; }
 
     .shell {
-      width: min(1200px, calc(100vw - 40px));
+      width: min(1160px, calc(100vw - 36px));
       margin: 0 auto;
-      padding-bottom: 56px;
+      padding-bottom: 24px;
     }
 
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 0;
+      padding: 12px 0;
       border-bottom: 1px solid var(--line);
     }
 
     .logo {
       display: inline-flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       font-weight: 800;
-      font-size: 30px;
+      font-size: clamp(24px, 2.2vw, 38px);
       letter-spacing: -0.02em;
     }
 
     .logo-mark {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       border: 2px solid var(--accent);
-      border-radius: 6px;
+      border-radius: 5px;
       position: relative;
     }
 
     .logo-mark::after {
       content: "";
       position: absolute;
-      inset: 5px 4px 5px 6px;
+      inset: 3px 3px 3px 5px;
       border-left: 2px solid var(--accent);
     }
 
     .nav {
       display: flex;
-      gap: 34px;
+      gap: clamp(16px, 2.2vw, 30px);
       align-items: center;
       font-family: 'Space Grotesk', sans-serif;
       color: #b5b5b5;
-      font-size: 30px;
+      font-size: clamp(18px, 1.5vw, 26px);
     }
 
     .nav a:hover { color: var(--text); }
@@ -145,85 +145,85 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       color: #fff;
       background: var(--accent);
       border-radius: 999px;
-      padding: 10px 18px;
+      padding: 8px 16px;
       border: 1px solid rgba(255, 255, 255, 0.12);
       box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
-      font-size: 24px;
+      font-size: clamp(16px, 1.3vw, 22px);
       line-height: 1;
     }
 
     .hero {
-      padding: 88px 0 20px;
+      padding: 40px 0 10px;
       text-align: center;
     }
 
     .tagline {
       color: #c2c2c2;
-      font-size: clamp(17px, 2vw, 28px);
+      font-size: clamp(14px, 1.25vw, 20px);
       margin: 0;
       font-family: 'Space Grotesk', sans-serif;
       letter-spacing: 0.01em;
     }
 
     .subtag {
-      margin: 12px 0 0;
+      margin: 8px 0 0;
       color: var(--muted);
-      font-size: clamp(15px, 1.5vw, 21px);
+      font-size: clamp(13px, 1.05vw, 16px);
       letter-spacing: 0.01em;
     }
 
     .stats {
-      margin-top: 78px;
+      margin-top: 32px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 18px;
+      gap: 10px;
     }
 
     .stat { text-align: center; }
 
     .stat-value {
       color: var(--accent);
-      font-size: clamp(56px, 8vw, 120px);
+      font-size: clamp(38px, 4.5vw, 74px);
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 0.9;
     }
 
     .stat-label {
-      margin-top: 10px;
+      margin-top: 6px;
       color: #9d9d9d;
-      font-size: clamp(16px, 1.45vw, 26px);
+      font-size: clamp(12px, 0.95vw, 15px);
       letter-spacing: 0.01em;
     }
 
     .message {
-      margin: 110px auto 0;
-      max-width: 1020px;
+      margin: 42px auto 0;
+      max-width: 920px;
       text-align: center;
     }
 
     .message h1 {
       margin: 0;
-      font-size: clamp(60px, 9vw, 150px);
+      font-size: clamp(44px, 5.4vw, 84px);
       line-height: 0.95;
       letter-spacing: -0.04em;
       text-wrap: balance;
     }
 
     .message p {
-      margin: 24px auto 0;
-      max-width: 980px;
+      margin: 14px auto 0;
+      max-width: 860px;
       color: var(--muted);
-      font-size: clamp(19px, 2vw, 35px);
-      line-height: 1.35;
+      font-size: clamp(14px, 1.1vw, 19px);
+      line-height: 1.4;
       text-wrap: balance;
     }
 
     .cta-row {
-      margin-top: 34px;
+      margin-top: 20px;
       display: flex;
       justify-content: center;
-      gap: 16px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -231,10 +231,10 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 14px 24px;
+      padding: 10px 16px;
       border-radius: 999px;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(16px, 1.2vw, 22px);
+      font-size: clamp(13px, 0.95vw, 16px);
       border: 1px solid transparent;
       transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
     }
@@ -254,44 +254,44 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     }
 
     .section {
-      margin-top: 92px;
+      margin-top: 40px;
     }
 
     .section-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     .section-title {
       margin: 0;
       text-transform: lowercase;
-      font-size: clamp(24px, 2.4vw, 40px);
+      font-size: clamp(20px, 1.7vw, 30px);
       letter-spacing: -0.02em;
     }
 
     .section-link {
       color: var(--accent-soft);
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(15px, 1.3vw, 22px);
+      font-size: clamp(13px, 1vw, 15px);
     }
 
     .featured-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 14px;
+      gap: 10px;
     }
 
     .entry-card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 18px;
-      min-height: 172px;
+      padding: 12px;
+      min-height: 122px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 8px;
       transition: border-color 170ms ease, transform 170ms ease, background 170ms ease;
     }
 
@@ -301,11 +301,11 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       background: #202020;
     }
 
-    .entry-icon { font-size: 23px; }
+    .entry-icon { font-size: 19px; }
 
     .entry-card h3 {
       margin: 0;
-      font-size: clamp(17px, 1.3vw, 24px);
+      font-size: clamp(14px, 1vw, 17px);
       line-height: 1.2;
       letter-spacing: -0.01em;
     }
@@ -313,25 +313,25 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     .entry-card p {
       margin: 0;
       color: var(--muted);
-      font-size: clamp(13px, 1vw, 16px);
-      line-height: 1.45;
+      font-size: clamp(12px, 0.85vw, 14px);
+      line-height: 1.35;
     }
 
     .category-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
+      gap: 10px;
     }
 
     .category-card {
       background: var(--bg-soft);
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 13px 15px;
+      padding: 9px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       transition: border-color 170ms ease, transform 170ms ease;
     }
 
@@ -343,8 +343,8 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     .category-label {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
-      font-size: clamp(15px, 1.1vw, 18px);
+      gap: 7px;
+      font-size: clamp(12px, 0.86vw, 14px);
       color: #e6e6e6;
       letter-spacing: -0.01em;
     }
@@ -353,35 +353,35 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       background: #2a2a2a;
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 999px;
-      padding: 4px 10px;
+      padding: 3px 8px;
       color: #a8a8a8;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(14px, 1vw, 16px);
-      min-width: 52px;
+      font-size: clamp(11px, 0.8vw, 13px);
+      min-width: 44px;
       text-align: center;
     }
 
     .footer {
-      margin-top: 96px;
-      padding: 30px 0 10px;
+      margin-top: 46px;
+      padding: 20px 0 8px;
       border-top: 1px solid var(--line);
       text-align: center;
     }
 
     .footer-links {
       display: inline-flex;
-      gap: 24px;
+      gap: 14px;
       flex-wrap: wrap;
       justify-content: center;
       color: #c4c4c4;
       font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(15px, 1.1vw, 18px);
+      font-size: clamp(12px, 0.9vw, 14px);
     }
 
     .footer-note {
-      margin-top: 16px;
+      margin-top: 10px;
       color: #7f7f7f;
-      font-size: clamp(14px, 1vw, 16px);
+      font-size: clamp(11px, 0.8vw, 13px);
     }
 
     @media (max-width: 1100px) {
