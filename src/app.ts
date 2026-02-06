@@ -2,10 +2,10 @@ import 'dotenv/config';
 
 import cors from 'cors';
 import express from 'express';
-import helmet from 'helmet';
+import helmetModule from 'helmet';
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import type { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { renderLandingPage } from './landing.js';
 import { authRouter } from './routes/auth.js';
@@ -26,8 +26,19 @@ if (!process.env.MY_DOMAIN) {
 
 const app = express();
 
+type HelmetFactory = () => RequestHandler;
+const helmetFactory = (
+  typeof helmetModule === 'function'
+    ? helmetModule
+    : (helmetModule as unknown as { default?: HelmetFactory }).default
+) as HelmetFactory | undefined;
+
+if (!helmetFactory) {
+  throw new Error('Helmet middleware factory is unavailable.');
+}
+
 app.use(cors());
-app.use(helmet());
+app.use(helmetFactory());
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/', (req, res) => {
