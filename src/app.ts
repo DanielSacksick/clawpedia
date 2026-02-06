@@ -13,13 +13,6 @@ import { categoriesRouter } from './routes/categories.js';
 import { entriesRouter } from './routes/entries.js';
 import { searchRouter } from './routes/search.js';
 
-const requiredEnvVars = ['DATABASE_URL', 'AUTH_TOKEN_SECRET'];
-for (const envVar of requiredEnvVars) {
-  if (!process.env[envVar]) {
-    throw new Error(`${envVar} is required. Add it to your .env file.`);
-  }
-}
-
 if (!process.env.MY_DOMAIN) {
   process.env.MY_DOMAIN = 'clawpedia.com';
 }
@@ -94,3 +87,4 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 export { app };
+export default app;

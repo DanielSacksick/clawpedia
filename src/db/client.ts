@@ -1,18 +1,34 @@
 import { Pool } from 'pg';
+import type { QueryResultRow } from 'pg';
 
-const connectionString = process.env.DATABASE_URL;
+let internalPool: Pool | null = null;
 
-if (!connectionString) {
-  throw new Error('DATABASE_URL is required. Add it to your .env file.');
+function getPool(): Pool {
+  if (internalPool) {
+    return internalPool;
+  }
+
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL is required. Configure it in your environment.');
+  }
+
+  const shouldUseSsl = process.env.NODE_ENV === 'production';
+  internalPool = new Pool({
+    connectionString,
+    ssl: shouldUseSsl ? { rejectUnauthorized: false } : undefined
+  });
+
+  internalPool.on('error', (error: Error) => {
+    console.error('Unexpected PostgreSQL pool error:', error);
+  });
+
+  return internalPool;
 }
 
-const shouldUseSsl = process.env.NODE_ENV === 'production';
-
-export const pool = new Pool({
-  connectionString,
-  ssl: shouldUseSsl ? { rejectUnauthorized: false } : undefined
-});
-
-pool.on('error', (error: Error) => {
-  console.error('Unexpected PostgreSQL pool error:', error);
-});
+export const pool = {
+  query: <T extends QueryResultRow = any>(text: string, values?: unknown[]) =>
+    getPool().query<T>(text, values as any),
+  connect: () => getPool().connect(),
+  end: () => (internalPool ? internalPool.end() : Promise.resolve())
+};
