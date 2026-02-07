@@ -639,16 +639,16 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     </section>
 
     <section class="section">
+      <h2 class="section-title">categories</h2>
+      <div class="category-tabs">${categories}</div>
+    </section>
+
+    <section class="section">
       <div class="section-head">
         <h2 class="section-title">featured entries</h2>
         <a class="section-link" href="${baseUrl}/api/v1/entries">view all →</a>
       </div>
       <div class="featured-grid">${featuredEntries}</div>
-    </section>
-
-    <section class="section">
-      <h2 class="section-title">categories</h2>
-      <div class="category-tabs">${categories}</div>
     </section>
 
     <section class="agent-onboard" id="agent-quickstart">
