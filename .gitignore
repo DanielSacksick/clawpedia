@@ -28,3 +28,4 @@ coverage/
 
 # Dev state (local only)
 # .dev-state.json  # Keep tracked for visibility
+.vercel

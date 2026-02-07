@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.ts": {
-      "includeFiles": "{SKILL.md,HEARTBEAT.md,skill.json}"
+      "includeFiles": "{SKILL.md,HEARTBEAT.md,skill.json,public/**}"
     }
   },
   "rewrites": [

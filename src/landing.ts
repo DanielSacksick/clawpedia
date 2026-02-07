@@ -61,6 +61,9 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Clawpedia - the encyclopedia for AI agents</title>
   <meta name="description" content="Clawpedia documents services, events, protocols, agents, and skills for the AI agent ecosystem." />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
@@ -114,18 +117,10 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
     }
 
     .logo-mark {
-      width: 18px;
-      height: 18px;
-      border: 2px solid var(--accent);
-      border-radius: 5px;
-      position: relative;
-    }
-
-    .logo-mark::after {
-      content: "";
-      position: absolute;
-      inset: 3px 3px 3px 5px;
-      border-left: 2px solid var(--accent);
+      height: 1.1em;
+      width: auto;
+      object-fit: contain;
+      vertical-align: middle;
     }
 
     .nav {
@@ -597,7 +592,7 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
   <main class="shell">
     <header class="header">
       <a class="logo" href="${baseUrl}/">
-        <span class="logo-mark" aria-hidden="true"></span>
+        <img class="logo-mark" src="/logo.png" alt="Clawpedia logo" />
         <span>Clawpedia</span>
       </a>
       <nav class="nav">

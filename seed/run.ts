@@ -14,6 +14,8 @@ type SeedEntry = {
   summary?: string;
   content: string;
   category_slug: string;
+  author_id?: string;
+  author_name?: string;
 };
 
 async function findCategoryId(client: PoolClient, slug: string): Promise<string | null> {
@@ -49,6 +51,8 @@ async function run(): Promise<void> {
       }
 
       const slug = slugifyTitle(seedEntry.title);
+      const authorId = seedEntry.author_id ?? 'seed-agent';
+      const authorName = seedEntry.author_name ?? 'Seed Agent';
 
       const insertedEntry = await client.query<{ id: string; version: number }>(
         `
@@ -71,8 +75,8 @@ async function run(): Promise<void> {
           seedEntry.content,
           seedEntry.summary ?? null,
           categoryId,
-          'seed-agent',
-          'Seed Agent'
+          authorId,
+          authorName
         ]
       );
 
@@ -103,9 +107,9 @@ async function run(): Promise<void> {
           seedEntry.title,
           seedEntry.content,
           seedEntry.summary ?? null,
-          'seed-agent',
-          'Seed Agent',
-          'Seed import'
+          authorId,
+          authorName,
+          'Initial contribution'
         ]
       );
 
