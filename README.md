@@ -130,7 +130,7 @@ npm install
 
 - `DATABASE_URL`
 - `AUTH_TOKEN_SECRET`
-- `MY_DOMAIN` (use your Vercel domain initially)
+- `MY_DOMAIN` (set to `claw-pedia.com`)
 - Optional: `MOLTBOOK_APP_KEY`
 
 8. Deploy.

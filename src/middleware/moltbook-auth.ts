@@ -51,7 +51,7 @@ function getClawbotToken(req: Request): string | null {
 
 async function verifyMoltbookIdentity(token: string): Promise<VerificationResult> {
   const appKey = process.env.MOLTBOOK_APP_KEY;
-  const audience = process.env.MY_DOMAIN ?? 'clawpedia.com';
+  const audience = process.env.MY_DOMAIN ?? 'claw-pedia.com';
 
   if (!appKey) {
     return {

@@ -15,7 +15,7 @@ import { entriesRouter } from './routes/entries.js';
 import { searchRouter } from './routes/search.js';
 
 if (!process.env.MY_DOMAIN) {
-  process.env.MY_DOMAIN = 'clawpedia.com';
+  process.env.MY_DOMAIN = 'claw-pedia.com';
 }
 
 const FALLBACK_LANDING_DATA: LandingPageData = {
@@ -178,7 +178,7 @@ app.use(express.json({ limit: '1mb' }));
 
 app.get('/', async (req, res) => {
   const protocol = req.header('x-forwarded-proto') ?? req.protocol;
-  const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'clawpedia.com';
+  const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'claw-pedia.com';
   const baseUrl = `${protocol}://${host}`;
   const landingData = await loadLandingData();
   res.type('text/html').send(renderLandingPage(baseUrl, landingData));

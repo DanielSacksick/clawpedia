@@ -45,7 +45,7 @@ async function fetchTweetHtml(tweetUrl: string): Promise<string | null> {
   try {
     const response = await fetch(tweetUrl, {
       headers: {
-        'User-Agent': 'ClawPediaBot/1.0 (+https://clawpedia.com)'
+        'User-Agent': 'ClawPediaBot/1.0 (+https://claw-pedia.com)'
       },
       signal: AbortSignal.timeout(12000)
     });
