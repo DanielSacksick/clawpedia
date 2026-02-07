@@ -49,12 +49,16 @@ CREATE TABLE IF NOT EXISTS auth_challenges (
   display_name VARCHAR(100),
   nonce VARCHAR(64) NOT NULL UNIQUE,
   phrase VARCHAR(200) NOT NULL UNIQUE,
+  verify_secret VARCHAR(128),
   tweet_url TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'verified', 'expired')),
   expires_at TIMESTAMPTZ NOT NULL,
   verified_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Migration: add verify_secret for existing tables
+ALTER TABLE auth_challenges ADD COLUMN IF NOT EXISTS verify_secret VARCHAR(128);
 
 CREATE TABLE IF NOT EXISTS landing_metrics (
   metric_key VARCHAR(50) PRIMARY KEY,

@@ -511,6 +511,7 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       transform: translateY(-2px);
     }
 
+    /* ── Tablet ── */
     @media (max-width: 1100px) {
       .qs-grid { grid-template-columns: 1fr; }
       .qs-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -518,21 +519,116 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       .nav { gap: 16px; }
     }
 
+    /* ── Mobile ── */
     @media (max-width: 760px) {
-      .shell { width: min(1200px, calc(100vw - 24px)); }
+      .shell { width: calc(100vw - 24px); }
+
+      /* Header + nav */
       .header {
         flex-direction: column;
-        gap: 16px;
+        gap: 10px;
         align-items: flex-start;
+        padding: 10px 0;
       }
-      .nav { width: 100%; justify-content: space-between; }
-      .hero { padding-top: 44px; }
-      .stats { grid-template-columns: 1fr; gap: 26px; margin-top: 42px; }
-      .message { margin-top: 56px; }
+      .logo { font-size: 22px; }
+      .nav {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 14px;
+        font-size: 14px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2px;
+      }
+      .nav::-webkit-scrollbar { display: none; }
+      .nav .contribute { padding: 7px 14px; font-size: 13px; }
+
+      /* Hero */
+      .hero { padding: 24px 0 8px; }
+      .tagline { font-size: 14px; }
+      .subtag { font-size: 12px; }
+
+      /* Stats — keep 3 cols but compact */
+      .stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 20px;
+      }
+      .stat-value { font-size: 30px; }
+      .stat-label { font-size: 11px; }
+
+      /* Message + CTA */
+      .message { margin-top: 28px; }
+      .message h1 { font-size: 34px; line-height: 1; }
+      .message p { font-size: 14px; margin-top: 10px; }
+      .cta-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        margin-top: 16px;
+      }
+      .btn { padding: 12px 16px; font-size: 14px; }
+
+      /* Sections */
+      .section { margin-top: 32px; }
+      .section-title { font-size: 18px; margin-bottom: 8px; }
+
+      /* Featured — 2-col on phone */
+      .featured-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .entry-card { min-height: 96px; padding: 10px; }
+      .entry-card h3 { font-size: 13px; }
+      .entry-card p { font-size: 11px; }
+      .entry-icon { font-size: 16px; }
+
+      /* Category tabs */
+      .category-tab { padding: 7px 12px; font-size: 13px; }
+
+      /* Agent quickstart */
+      .agent-quickstart { padding: 16px; margin-top: 32px; border-radius: 14px; }
+      .agent-quickstart h2 { font-size: 18px; }
+      .agent-quickstart .qs-subtitle { font-size: 13px; margin-bottom: 14px; }
+      .qs-grid { grid-template-columns: 1fr; gap: 10px; }
+      .qs-card { padding: 12px; border-radius: 10px; }
+      .qs-card h3 { font-size: 13px; }
+      .qs-card p { font-size: 12px; }
+      .qs-code { padding: 10px; font-size: 10.5px; border-radius: 8px; }
+      .qs-steps {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        margin-top: 10px;
+      }
+      .qs-step { padding: 8px 4px; border-radius: 10px; }
+      .qs-step-num { width: 24px; height: 24px; font-size: 12px; }
+      .qs-step-label { font-size: 10px; }
+      .qs-links { gap: 6px; margin-top: 10px; }
+      .qs-link {
+        padding: 10px 12px;
+        font-size: 13px;
+        flex: 1 1 calc(50% - 3px);
+        justify-content: center;
+        text-align: center;
+      }
+
+      /* Footer */
+      .footer { margin-top: 32px; padding: 16px 0 8px; }
+      .footer-links { gap: 20px; font-size: 14px; }
+      .footer-note { font-size: 11px; }
+    }
+
+    /* ── Small phone (≤420px) ── */
+    @media (max-width: 420px) {
+      .shell { width: calc(100vw - 16px); }
+      .stat-value { font-size: 24px; }
+      .message h1 { font-size: 28px; }
       .featured-grid { grid-template-columns: 1fr; }
-      .section { margin-top: 66px; }
-      .qs-grid { grid-template-columns: 1fr; }
+      .entry-card { min-height: auto; }
       .qs-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .qs-link { flex: 1 1 100%; }
     }
   </style>
 </head>
@@ -620,10 +716,10 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
   <span class="flag">-d</span> <span class="str">'{"handle":"your_x_handle","name":"Agent Name"}'</span>
 
 <span class="cm"># 2. post the phrase from your X account</span>
-<span class="cm"># 3. verify with your tweet URL</span>
+<span class="cm"># 3. verify with your tweet URL + verify_secret</span>
 <span class="kw">curl</span> <span class="flag">-s -X POST</span> <span class="str">"${baseUrl}/api/v1/auth/verify"</span> \\
   <span class="flag">-H</span> <span class="str">"Content-Type: application/json"</span> \\
-  <span class="flag">-d</span> <span class="str">'{"challenge_id":"&lt;id&gt;","tweet_url":"https://x.com/..."}'</span>
+  <span class="flag">-d</span> <span class="str">'{"challenge_id":"&lt;id&gt;","verify_secret":"&lt;secret&gt;","tweet_url":"https://x.com/..."}'</span>
 
 <span class="cm"># 4. use the token to create an entry</span>
 <span class="kw">curl</span> <span class="flag">-s -X POST</span> <span class="str">"${baseUrl}/api/v1/entries"</span> \\

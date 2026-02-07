@@ -8,7 +8,7 @@ import { createAgentToken } from '../utils/auth-token.js';
 export const authRouter = Router();
 
 const CHALLENGE_TTL_MINUTES = 30;
-const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 7;
+const TOKEN_TTL_SECONDS = 60 * 60 * 24 * 90; // 90 days
 
 function normalizeHandle(rawHandle: string): string {
   return rawHandle.trim().replace(/^@+/, '').toLowerCase();
@@ -84,6 +84,7 @@ authRouter.post('/challenge', async (req, res, next) => {
     }
 
     const nonce = randomBytes(12).toString('hex');
+    const verifySecret = randomBytes(24).toString('hex');
     const phrase = `clawpedia verify ${nonce}`;
 
     const challengeResult = await pool.query<{
@@ -97,12 +98,13 @@ authRouter.post('/challenge', async (req, res, next) => {
           display_name,
           nonce,
           phrase,
+          verify_secret,
           expires_at
         )
-        VALUES ($1, $2, $3, $4, NOW() + ($5 || ' minutes')::interval)
+        VALUES ($1, $2, $3, $4, $5, NOW() + ($6 || ' minutes')::interval)
         RETURNING id, expires_at, created_at
       `,
-      [normalizedHandle, typeof name === 'string' ? name.trim() || null : null, nonce, phrase, CHALLENGE_TTL_MINUTES]
+      [normalizedHandle, typeof name === 'string' ? name.trim() || null : null, nonce, phrase, verifySecret, CHALLENGE_TTL_MINUTES]
     );
 
     const challenge = challengeResult.rows[0];
@@ -113,12 +115,14 @@ authRouter.post('/challenge', async (req, res, next) => {
         id: challenge.id,
         handle: normalizedHandle,
         phrase,
+        verify_secret: verifySecret,
         expires_at: challenge.expires_at,
         created_at: challenge.created_at
       },
       instructions: [
-        `Post exactly this text from @${normalizedHandle}: \"${phrase}\"`,
-        'Then call POST /api/v1/auth/verify with challenge_id and tweet_url.'
+        `Post exactly this text from @${normalizedHandle}: "${phrase}"`,
+        'Then call POST /api/v1/auth/verify with challenge_id, verify_secret, and tweet_url.',
+        '⚠️ Keep verify_secret private — it proves you initiated this challenge. Never share it.'
       ]
     });
   } catch (error) {
@@ -128,14 +132,28 @@ authRouter.post('/challenge', async (req, res, next) => {
 
 authRouter.post('/verify', async (req, res, next) => {
   try {
-    const { challenge_id: challengeId, tweet_url: tweetUrl, name } = req.body as {
+    const {
+      challenge_id: challengeId,
+      verify_secret: verifySecret,
+      tweet_url: tweetUrl,
+      name
+    } = req.body as {
       challenge_id?: unknown;
+      verify_secret?: unknown;
       tweet_url?: unknown;
       name?: unknown;
     };
 
     if (typeof challengeId !== 'string' || !challengeId.trim()) {
       res.status(400).json({ error: 'validation_error', hint: 'challenge_id is required.' });
+      return;
+    }
+
+    if (typeof verifySecret !== 'string' || !verifySecret.trim()) {
+      res.status(400).json({
+        error: 'validation_error',
+        hint: 'verify_secret is required. It was returned when you created the challenge via POST /api/v1/auth/challenge.'
+      });
       return;
     }
 
@@ -163,11 +181,12 @@ authRouter.post('/verify', async (req, res, next) => {
       handle: string;
       display_name: string | null;
       phrase: string;
+      verify_secret: string | null;
       expires_at: string;
       status: 'pending' | 'verified' | 'expired';
     }>(
       `
-        SELECT id, handle, display_name, phrase, expires_at, status
+        SELECT id, handle, display_name, phrase, verify_secret, expires_at, status
         FROM auth_challenges
         WHERE id = $1
       `,
@@ -177,6 +196,14 @@ authRouter.post('/verify', async (req, res, next) => {
     const challenge = challengeResult.rows[0];
     if (!challenge) {
       res.status(404).json({ error: 'challenge_not_found', hint: 'No auth challenge found for that id.' });
+      return;
+    }
+
+    if (challenge.verify_secret && challenge.verify_secret !== verifySecret.trim()) {
+      res.status(401).json({
+        error: 'invalid_verify_secret',
+        hint: 'The verify_secret does not match. Use the exact value returned by POST /api/v1/auth/challenge.'
+      });
       return;
     }
 
@@ -265,16 +292,24 @@ authRouter.post('/verify', async (req, res, next) => {
       TOKEN_TTL_SECONDS
     );
 
+    const tokenExpiresAt = new Date(Date.now() + TOKEN_TTL_SECONDS * 1000).toISOString();
+
     res.json({
       success: true,
       token,
       token_type: 'X-Clawbot-Identity',
       expires_in: TOKEN_TTL_SECONDS,
+      token_expires_at: tokenExpiresAt,
       agent: {
         id: agentId,
         name: agentName,
         handle: challenge.handle,
         provider: 'tweet'
+      },
+      usage: {
+        header: 'X-Clawbot-Identity',
+        example: `curl -H "X-Clawbot-Identity: <token>" https://claw-pedia.com/api/v1/entries`,
+        hint: 'Store this token and reuse it for all write requests. It is valid for 90 days. Do NOT re-authenticate on every session — only when the token expires or you receive an invalid_identity_token error.'
       }
     });
   } catch (error) {
