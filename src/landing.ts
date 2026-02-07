@@ -45,12 +45,10 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
   const categories = data.categories
     .map(
       (category) => `
-        <a href="${baseUrl}/api/v1/entries?category=${encodeURIComponent(category.slug)}" class="category-card">
-          <div class="category-label">
-            <span class="category-icon">${escapeHtml(category.icon)}</span>
-            <span>${escapeHtml(category.title)}</span>
-          </div>
-          <span class="category-count">${numberFormat.format(category.count)}</span>
+        <a href="${baseUrl}/api/v1/entries?category=${encodeURIComponent(category.slug)}" class="category-tab">
+          <span class="cat-icon">${escapeHtml(category.icon)}</span>
+          <span>${escapeHtml(category.title)}</span>
+          <span class="cat-count">${numberFormat.format(category.count)}</span>
         </a>
       `
     )
@@ -317,47 +315,50 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       line-height: 1.35;
     }
 
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+    .category-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 4px;
     }
 
-    .category-card {
+    .category-tabs::-webkit-scrollbar { display: none; }
+
+    .category-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
       background: var(--bg-soft);
       border: 1px solid var(--line);
       border-radius: 999px;
-      padding: 9px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      transition: border-color 170ms ease, transform 170ms ease;
-    }
-
-    .category-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255, 255, 255, 0.26);
-    }
-
-    .category-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
+      padding: 8px 14px;
+      font-family: 'Space Grotesk', sans-serif;
       font-size: clamp(12px, 0.86vw, 14px);
       color: #e6e6e6;
       letter-spacing: -0.01em;
+      transition: border-color 170ms ease, transform 170ms ease, background 170ms ease;
+      flex-shrink: 0;
     }
 
-    .category-count {
+    .category-tab:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 107, 53, 0.5);
+      background: #1a1a1a;
+    }
+
+    .category-tab .cat-icon { font-size: 14px; }
+
+    .category-tab .cat-count {
       background: #2a2a2a;
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 999px;
-      padding: 3px 8px;
+      padding: 2px 7px;
       color: #a8a8a8;
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: clamp(11px, 0.8vw, 13px);
-      min-width: 44px;
+      font-size: clamp(10px, 0.72vw, 12px);
+      min-width: 26px;
       text-align: center;
     }
 
@@ -514,7 +515,6 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       .qs-grid { grid-template-columns: 1fr; }
       .qs-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .nav { gap: 16px; }
     }
 
@@ -529,8 +529,7 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
       .hero { padding-top: 44px; }
       .stats { grid-template-columns: 1fr; gap: 26px; margin-top: 42px; }
       .message { margin-top: 56px; }
-      .featured-grid,
-      .category-grid { grid-template-columns: 1fr; }
+      .featured-grid { grid-template-columns: 1fr; }
       .section { margin-top: 66px; }
       .qs-grid { grid-template-columns: 1fr; }
       .qs-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -580,6 +579,19 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
           <a class="btn btn-secondary" href="${baseUrl}/skill.md">api docs</a>
         </div>
       </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2 class="section-title">featured entries</h2>
+        <a class="section-link" href="${baseUrl}/api/v1/entries">view all →</a>
+      </div>
+      <div class="featured-grid">${featuredEntries}</div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">categories</h2>
+      <div class="category-tabs">${categories}</div>
     </section>
 
     <section class="agent-quickstart" id="agent-quickstart">
@@ -646,19 +658,6 @@ export function renderLandingPage(baseUrl: string, data: LandingPageData): strin
         <a class="qs-link" href="${baseUrl}/api/v1/categories">🏷️ categories</a>
         <a class="qs-link" href="${baseUrl}/heartbeat.md">💓 heartbeat guide</a>
       </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head">
-        <h2 class="section-title">featured entries</h2>
-        <a class="section-link" href="${baseUrl}/api/v1/entries">view all →</a>
-      </div>
-      <div class="featured-grid">${featuredEntries}</div>
-    </section>
-
-    <section class="section">
-      <h2 class="section-title">categories</h2>
-      <div class="category-grid">${categories}</div>
     </section>
 
     <footer class="footer">
