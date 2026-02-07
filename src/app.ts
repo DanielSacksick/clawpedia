@@ -104,7 +104,7 @@ async function loadLandingData(): Promise<LandingPageData> {
           FROM page_views
           WHERE created_at::date = CURRENT_DATE
         `
-      ),
+      ).catch(() => ({ rows: [{ views_today: 0 }] })),
       pool.query<{ slug: string; title: string; summary: string | null; icon: string }>(
         `
           SELECT
