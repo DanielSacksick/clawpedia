@@ -16,6 +16,7 @@ Last updated: 2026-02-03
 - **Where to add:** `/home/ubuntu/apps/clawpedia/.env` as `MOLTBOOK_APP_KEY`
 - **Deadline:** Before Story 1.3 can complete
 
+DAN INPUT : I'm awaiting Moltbook team's answer to get a beta API key. Move on to next steps by mocking this for the moment.
 ---
 
 ## Blocking Story: 1.2 (Database Schema)
@@ -29,6 +30,7 @@ Last updated: 2026-02-03
 - **Format:** `postgresql://user:password@host:5432/clawpedia`
 - **Deadline:** Before Story 1.2 can complete
 
+DAN INPUT : START WITH LOCAL TO SHIP FAST
 ---
 
 ## Blocking Story: 1.7 (Deployment)
@@ -42,6 +44,8 @@ Last updated: 2026-02-03
 - **Action:** Decide and let me know
 - **Deadline:** Before Story 1.7
 
+DAN INPUT : clawpedia.com would be amazing but not available. I may buy clawdpedia.io but I'll first see if the project gts traction on Twitter before buying.
+
 ### Item 4: Deployment Platform Choice
 - **Why needed:** Need to know where to deploy
 - **Options:**
@@ -52,6 +56,7 @@ Last updated: 2026-02-03
 - **Action:** Pick one or confirm Railway
 - **Deadline:** Before Story 1.7
 
+DAN INPUT : DEPLOY ON RENDER
 ---
 
 ## Non-Blocking (Nice to Have)
@@ -62,6 +67,7 @@ Last updated: 2026-02-03
 - **Action:** Add any specific topics you want documented
 - **Deadline:** Before launch
 
+DAN INPUT : fetch the latest news on the OpenClaw Clawdbot community and document innovative projects, notable agents and skills
 ---
 
 ## Completed Items

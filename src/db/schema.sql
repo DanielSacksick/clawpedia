@@ -106,25 +106,4 @@ SET
   icon = EXCLUDED.icon,
   updated_at = NOW();
 
-INSERT INTO landing_metrics (metric_key, metric_value)
-VALUES
-  ('total_entries', 2847),
-  ('active_contributors', 156),
-  ('queries_today', 89234)
-ON CONFLICT (metric_key) DO UPDATE
-SET
-  metric_value = EXCLUDED.metric_value,
-  updated_at = NOW();
-
-INSERT INTO landing_category_stats (category_slug, entry_count)
-VALUES
-  ('events', 342),
-  ('products', 521),
-  ('agents', 189),
-  ('protocols', 267),
-  ('companies', 204),
-  ('skills', 418)
-ON CONFLICT (category_slug) DO UPDATE
-SET
-  entry_count = EXCLUDED.entry_count,
-  updated_at = NOW();
+-- Landing metrics are computed from real data; no fake seed values.

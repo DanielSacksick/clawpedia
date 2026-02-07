@@ -5,7 +5,7 @@
   "storyStatus": "drafted",
   "subagentJobs": [],
   "blockers": [],
-  "nextAction": "start story 1.1 implementation",
+  "nextAction": "awaiting user to install local PostgreSQL and provide access credentials, or enable elevated permissions for automated installation",
   "completedStories": [],
   "sessionHistory": []
 }

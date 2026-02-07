@@ -86,15 +86,7 @@ async function loadLandingData(): Promise<LandingPageData> {
   const categoryOrder = ['events', 'products', 'agents', 'protocols', 'companies', 'skills'];
 
   try {
-    const [metricsResult, realStatsResult, featuredResult, categoriesResult] = await Promise.all([
-      pool.query<{ metric_key: string; metric_value: string }>(
-        `
-          SELECT metric_key, metric_value::text
-          FROM landing_metrics
-          WHERE metric_key = ANY($1::text[])
-        `,
-        [['total_entries', 'active_contributors', 'queries_today']]
-      ),
+    const [realStatsResult, featuredResult, categoriesResult] = await Promise.all([
       pool.query<{ total_entries: number; active_contributors: number; queries_today: number }>(
         `
           SELECT
@@ -124,25 +116,18 @@ async function loadLandingData(): Promise<LandingPageData> {
           SELECT
             c.slug,
             c.icon,
-            COALESCE(lcs.entry_count, COALESCE(ec.actual_count, 0))::int AS entry_count
+            COUNT(e.id)::int AS entry_count
           FROM categories c
-          LEFT JOIN landing_category_stats lcs ON lcs.category_slug = c.slug
-          LEFT JOIN (
-            SELECT category_id, COUNT(*)::int AS actual_count
-            FROM entries
-            WHERE is_current = TRUE
-            GROUP BY category_id
-          ) ec ON ec.category_id = c.id
+          LEFT JOIN entries e
+            ON e.category_id = c.id
+            AND e.is_current = TRUE
           WHERE c.slug = ANY($1::text[])
+          GROUP BY c.slug, c.icon
         `,
         [categoryOrder]
       )
     ]);
 
-    const metricMap = new Map<string, number>();
-    for (const metric of metricsResult.rows) {
-      metricMap.set(metric.metric_key, Number.parseInt(metric.metric_value, 10));
-    }
     const realStats = realStatsResult.rows[0] ?? {
       total_entries: 0,
       active_contributors: 0,
@@ -153,10 +138,9 @@ async function loadLandingData(): Promise<LandingPageData> {
 
     return {
       stats: {
-        totalEntries: metricMap.get('total_entries') ?? realStats.total_entries,
-        activeContributors:
-          metricMap.get('active_contributors') ?? realStats.active_contributors,
-        queriesToday: metricMap.get('queries_today') ?? realStats.queries_today
+        totalEntries: realStats.total_entries,
+        activeContributors: realStats.active_contributors,
+        queriesToday: realStats.queries_today
       },
       featuredEntries:
         featuredResult.rows.length > 0
