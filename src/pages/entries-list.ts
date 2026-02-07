@@ -11,6 +11,7 @@ type EntryListItem = {
   category_slug: string;
   category_name: string;
   category_icon: string;
+  score: number;
 };
 
 const entriesListCss = `
@@ -86,6 +87,33 @@ const entriesListCss = `
     align-items: center;
     gap: 4px;
     color: var(--accent-soft);
+  }
+
+  .entry-row-score {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    padding: 4px 0;
+  }
+
+  .entry-row-score-value {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(16px, 1.2vw, 22px);
+    letter-spacing: -0.02em;
+    color: var(--muted);
+  }
+
+  .entry-row-score-value.positive { color: #4ade80; }
+  .entry-row-score-value.negative { color: #f87171; }
+
+  .entry-row-score-label {
+    font-size: clamp(9px, 0.65vw, 11px);
+    color: #555;
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   .pagination {
@@ -170,9 +198,15 @@ export function renderEntriesList(
               day: 'numeric'
             });
 
+            const scoreClass = entry.score > 0 ? ' positive' : entry.score < 0 ? ' negative' : '';
+            const scorePrefix = entry.score > 0 ? '+' : '';
+
             return `
               <a href="${baseUrl}/entries/${encodeURIComponent(entry.slug)}" class="entry-row">
-                <span class="entry-row-icon">${escapeHtml(entry.category_icon)}</span>
+                <div class="entry-row-score">
+                  <span class="entry-row-score-value${scoreClass}">${scorePrefix}${entry.score}</span>
+                  <span class="entry-row-score-label">score</span>
+                </div>
                 <div class="entry-row-body">
                   <h3 class="entry-row-title">${escapeHtml(entry.title)}</h3>
                   ${entry.summary ? `<p class="entry-row-summary">${escapeHtml(entry.summary)}</p>` : ''}

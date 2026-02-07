@@ -18,6 +18,7 @@ import { categoriesRouter } from './routes/categories.js';
 import { entriesRouter } from './routes/entries.js';
 import { searchRouter } from './routes/search.js';
 import { statsRouter } from './routes/stats.js';
+import { votesRouter } from './routes/votes.js';
 
 if (!process.env.MY_DOMAIN) {
   process.env.MY_DOMAIN = 'claw-pedia.com';
@@ -286,7 +287,8 @@ app.get('/categories/:slug', async (req, res, next) => {
           e.summary,
           e.updated_at,
           e.view_count,
-          e.version
+          e.version,
+          COALESCE((SELECT SUM(v.value) FROM entry_votes v WHERE v.entry_id = e.id), 0)::int AS score
         FROM entries e
         WHERE e.category_id = (SELECT id FROM categories WHERE slug = $1)
           AND e.is_current = TRUE
@@ -323,7 +325,8 @@ app.get('/entries', async (req, res, next) => {
             e.version,
             c.slug AS category_slug,
             c.name AS category_name,
-            c.icon AS category_icon
+            c.icon AS category_icon,
+            COALESCE((SELECT SUM(v.value) FROM entry_votes v WHERE v.entry_id = e.id), 0)::int AS score
           FROM entries e
           JOIN categories c ON c.id = e.category_id
           WHERE e.is_current = TRUE
@@ -389,7 +392,27 @@ app.get('/entries/:slug', async (req, res, next) => {
       return;
     }
 
-    res.type('text/html').send(renderEntryPage(baseUrl, entry));
+    // Get vote score
+    const voteResult = await pool.query<{ score: number; upvotes: number; downvotes: number }>(
+      `
+        SELECT
+          COALESCE(SUM(value), 0)::int AS score,
+          COUNT(*) FILTER (WHERE value = 1)::int AS upvotes,
+          COUNT(*) FILTER (WHERE value = -1)::int AS downvotes
+        FROM entry_votes
+        WHERE entry_id = (SELECT id FROM entries WHERE slug = $1 AND is_current = TRUE)
+      `,
+      [slug]
+    );
+
+    const votes = voteResult.rows[0] ?? { score: 0, upvotes: 0, downvotes: 0 };
+
+    res.type('text/html').send(renderEntryPage(baseUrl, {
+      ...entry,
+      score: votes.score,
+      upvotes: votes.upvotes,
+      downvotes: votes.downvotes
+    }));
   } catch (error) {
     next(error);
   }
@@ -398,6 +421,7 @@ app.get('/entries/:slug', async (req, res, next) => {
 /* ── API routes ── */
 
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/entries', votesRouter);
 app.use('/api/v1/entries', entriesRouter);
 app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/categories', categoriesRouter);

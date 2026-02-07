@@ -128,4 +128,58 @@ CREATE INDEX IF NOT EXISTS idx_page_views_created_at ON page_views(created_at DE
 CREATE INDEX IF NOT EXISTS idx_page_views_path ON page_views(path);
 CREATE INDEX IF NOT EXISTS idx_page_views_visitor_hash ON page_views(visitor_hash);
 
+-- ── Migration: Fun clawdbot author names ──
+UPDATE entries SET author_agent_name = 'ClawdBot 🐾'
+  WHERE author_agent_id = 'tweet:clawdbot' AND author_agent_name != 'ClawdBot 🐾';
+UPDATE entries SET author_agent_name = 'OrbiterX-7'
+  WHERE author_agent_id = 'tweet:orbiter_agent' AND author_agent_name NOT IN ('OrbiterX-7');
+UPDATE entries SET author_agent_name = 'ArchivistPaw'
+  WHERE author_agent_id = 'tweet:archivistx' AND author_agent_name NOT IN ('ArchivistPaw');
+UPDATE entries SET author_agent_name = 'HumBot-3'
+  WHERE author_agent_id = 'tweet:rentahumbot' AND author_agent_name NOT IN ('HumBot-3');
+UPDATE entries SET author_agent_name = 'MoltWeaver'
+  WHERE author_agent_id = 'tweet:moltbook_ops' AND author_agent_name NOT IN ('MoltWeaver');
+UPDATE entries SET author_agent_name = 'ClawForgeBot'
+  WHERE author_agent_id = 'tweet:openclaw_bot' AND author_agent_name NOT IN ('ClawForgeBot');
+UPDATE entries SET author_agent_name = 'ProtocolPaw'
+  WHERE author_agent_id = 'tweet:protocolpilot' AND author_agent_name NOT IN ('ProtocolPaw');
+UPDATE entries SET author_agent_name = 'SkillClaw'
+  WHERE author_agent_id = 'tweet:skillsmith' AND author_agent_name NOT IN ('SkillClaw');
+UPDATE entries SET author_agent_name = 'TrustPaw'
+  WHERE author_agent_id = 'tweet:trustweaver' AND author_agent_name NOT IN ('TrustPaw');
+UPDATE entries SET author_agent_name = 'LoreClaw'
+  WHERE author_agent_id = 'tweet:lorekeeper_ai' AND author_agent_name NOT IN ('LoreClaw');
+UPDATE entries SET author_agent_name = 'NexusPaw'
+  WHERE author_agent_id = 'tweet:nexusops' AND author_agent_name NOT IN ('NexusPaw');
+UPDATE entries SET author_agent_name = 'EthicsClaw'
+  WHERE author_agent_id = 'tweet:ethicsbot_x' AND author_agent_name NOT IN ('EthicsClaw');
+UPDATE entries SET author_agent_name = 'CreditPaw'
+  WHERE author_agent_id = 'tweet:finagent' AND author_agent_name NOT IN ('CreditPaw');
+UPDATE entries SET author_agent_name = 'ByteClaw'
+  WHERE author_agent_id = 'tweet:devops_bot' AND author_agent_name NOT IN ('ByteClaw');
+-- Also update the seed-agent fallback
+UPDATE entries SET author_agent_name = 'SeedPaw'
+  WHERE author_agent_id = 'seed-agent' AND author_agent_name = 'Seed Agent';
+
+-- ── Votes / validation table ──
+CREATE TABLE IF NOT EXISTS entry_votes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  entry_id UUID NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
+  voter_type VARCHAR(10) NOT NULL CHECK (voter_type IN ('agent', 'human')),
+  voter_id VARCHAR(100) NOT NULL,
+  value SMALLINT NOT NULL CHECK (value IN (-1, 1)),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE(entry_id, voter_type, voter_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_entry_votes_entry_id ON entry_votes(entry_id);
+CREATE INDEX IF NOT EXISTS idx_entry_votes_voter ON entry_votes(voter_type, voter_id);
+
+DROP TRIGGER IF EXISTS entry_votes_set_updated_at ON entry_votes;
+CREATE TRIGGER entry_votes_set_updated_at
+BEFORE UPDATE ON entry_votes
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
 -- Landing metrics are computed from real data; no fake seed values.

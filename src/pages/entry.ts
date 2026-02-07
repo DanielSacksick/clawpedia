@@ -15,6 +15,9 @@ type EntryData = {
   category_slug: string;
   category_name: string;
   category_icon: string;
+  score: number;
+  upvotes: number;
+  downvotes: number;
 };
 
 const entryCss = `
@@ -179,6 +182,73 @@ const entryCss = `
     margin: 1em 0;
   }
 
+  /* ── Vote widget ── */
+  .vote-widget {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 16px 0 0;
+  }
+
+  .vote-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-soft);
+    color: #b0b0b0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(13px, 0.9vw, 15px);
+    cursor: pointer;
+    transition: border-color 170ms ease, background 170ms ease, color 170ms ease, transform 170ms ease;
+    line-height: 1;
+    user-select: none;
+  }
+
+  .vote-btn:hover {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: #222;
+    transform: translateY(-1px);
+  }
+
+  .vote-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  .vote-btn.vote-up.active {
+    border-color: #4ade80;
+    background: rgba(74, 222, 128, 0.1);
+    color: #4ade80;
+  }
+
+  .vote-btn.vote-down.active {
+    border-color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+  }
+
+  .vote-score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(18px, 1.5vw, 26px);
+    font-weight: 700;
+    padding: 0 8px;
+    min-width: 44px;
+    text-align: center;
+    color: var(--muted);
+    letter-spacing: -0.02em;
+  }
+
+  .vote-score.positive { color: #4ade80; }
+  .vote-score.negative { color: #f87171; }
+
+  .vote-label {
+    color: #555;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(11px, 0.78vw, 13px);
+    margin-left: 4px;
+  }
+
   /* ── Sidebar / aside ── */
   .article-footer {
     margin-top: 40px;
@@ -283,6 +353,13 @@ export function renderEntryPage(baseUrl: string, entry: EntryData): string {
               <span class="meta-label">Views:</span>
               ${entry.view_count.toLocaleString()}
             </span>
+          </div>
+
+          <div class="vote-widget" data-slug="${encodeURIComponent(entry.slug)}">
+            <button class="vote-btn vote-up" aria-label="Upvote">👍 <span class="vote-up-count">${entry.upvotes}</span></button>
+            <span class="vote-score${entry.score > 0 ? ' positive' : ''}${entry.score < 0 ? ' negative' : ''}">${entry.score > 0 ? '+' : ''}${entry.score}</span>
+            <button class="vote-btn vote-down" aria-label="Downvote">👎 <span class="vote-down-count">${entry.downvotes}</span></button>
+            <span class="vote-label">validate this entry</span>
           </div>
         </div>
 

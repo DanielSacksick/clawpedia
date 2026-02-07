@@ -207,6 +207,7 @@ export function pageShell(
     </footer>
   </main>
 
+  <script src="/vote.js"></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>`;
