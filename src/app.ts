@@ -10,6 +10,9 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { pool } from './db/client.js';
 import { renderLandingPage, type LandingPageData } from './landing.js';
 import { tracker } from './middleware/tracker.js';
+import { renderCategoriesIndex, renderCategoryDetail } from './pages/categories.js';
+import { renderEntriesList } from './pages/entries-list.js';
+import { renderEntryPage } from './pages/entry.js';
 import { authRouter } from './routes/auth.js';
 import { categoriesRouter } from './routes/categories.js';
 import { entriesRouter } from './routes/entries.js';
@@ -221,6 +224,178 @@ app.get('/skill.json', async (_req, res, next) => {
     next(error);
   }
 });
+
+/* ── HTML pages ── */
+
+app.get('/categories', async (req, res, next) => {
+  try {
+    const protocol = req.header('x-forwarded-proto') ?? req.protocol;
+    const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'claw-pedia.com';
+    const baseUrl = `${protocol}://${host}`;
+
+    const result = await pool.query(
+      `
+        SELECT
+          c.slug,
+          c.name,
+          c.description,
+          c.icon,
+          COUNT(e.id)::int AS entry_count
+        FROM categories c
+        LEFT JOIN entries e
+          ON e.category_id = c.id
+          AND e.is_current = TRUE
+        GROUP BY c.id
+        ORDER BY c.name ASC
+      `
+    );
+
+    res.type('text/html').send(renderCategoriesIndex(baseUrl, result.rows));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/categories/:slug', async (req, res, next) => {
+  try {
+    const protocol = req.header('x-forwarded-proto') ?? req.protocol;
+    const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'claw-pedia.com';
+    const baseUrl = `${protocol}://${host}`;
+    const { slug } = req.params;
+
+    const categoryResult = await pool.query(
+      `
+        SELECT slug, name, description, icon
+        FROM categories
+        WHERE slug = $1
+      `,
+      [slug]
+    );
+
+    const category = categoryResult.rows[0];
+    if (!category) {
+      res.status(404).type('text/html').send('Category not found');
+      return;
+    }
+
+    const entriesResult = await pool.query(
+      `
+        SELECT
+          e.slug,
+          e.title,
+          e.summary,
+          e.updated_at,
+          e.view_count,
+          e.version
+        FROM entries e
+        WHERE e.category_id = (SELECT id FROM categories WHERE slug = $1)
+          AND e.is_current = TRUE
+        ORDER BY e.updated_at DESC
+      `,
+      [slug]
+    );
+
+    res.type('text/html').send(renderCategoryDetail(baseUrl, category, entriesResult.rows));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/entries', async (req, res, next) => {
+  try {
+    const protocol = req.header('x-forwarded-proto') ?? req.protocol;
+    const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'claw-pedia.com';
+    const baseUrl = `${protocol}://${host}`;
+
+    const limit = Math.min(Math.max(Number.parseInt(String(req.query.limit ?? '20'), 10) || 20, 1), 50);
+    const offset = Math.max(Number.parseInt(String(req.query.offset ?? '0'), 10) || 0, 0);
+
+    const [entriesResult, countResult] = await Promise.all([
+      pool.query(
+        `
+          SELECT
+            e.slug,
+            e.title,
+            e.summary,
+            e.created_at,
+            e.updated_at,
+            e.view_count,
+            e.version,
+            c.slug AS category_slug,
+            c.name AS category_name,
+            c.icon AS category_icon
+          FROM entries e
+          JOIN categories c ON c.id = e.category_id
+          WHERE e.is_current = TRUE
+          ORDER BY e.updated_at DESC
+          LIMIT $1 OFFSET $2
+        `,
+        [limit, offset]
+      ),
+      pool.query<{ count: string }>(
+        `
+          SELECT COUNT(*)::text AS count
+          FROM entries
+          WHERE is_current = TRUE
+        `
+      )
+    ]);
+
+    const total = Number.parseInt(countResult.rows[0]?.count ?? '0', 10);
+    res.type('text/html').send(renderEntriesList(baseUrl, entriesResult.rows, total, offset, limit));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get('/entries/:slug', async (req, res, next) => {
+  try {
+    const protocol = req.header('x-forwarded-proto') ?? req.protocol;
+    const host = req.header('x-forwarded-host') ?? req.get('host') ?? 'claw-pedia.com';
+    const baseUrl = `${protocol}://${host}`;
+    const { slug } = req.params;
+
+    const result = await pool.query(
+      `
+        WITH updated AS (
+          UPDATE entries
+          SET view_count = view_count + 1
+          WHERE slug = $1
+            AND is_current = TRUE
+          RETURNING *
+        )
+        SELECT
+          u.slug,
+          u.title,
+          u.content,
+          u.summary,
+          u.author_agent_name,
+          u.created_at,
+          u.updated_at,
+          u.view_count,
+          u.version,
+          c.slug AS category_slug,
+          c.name AS category_name,
+          c.icon AS category_icon
+        FROM updated u
+        JOIN categories c ON c.id = u.category_id
+      `,
+      [slug]
+    );
+
+    const entry = result.rows[0];
+    if (!entry) {
+      res.status(404).type('text/html').send('Entry not found');
+      return;
+    }
+
+    res.type('text/html').send(renderEntryPage(baseUrl, entry));
+  } catch (error) {
+    next(error);
+  }
+});
+
+/* ── API routes ── */
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/entries', entriesRouter);
