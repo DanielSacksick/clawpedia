@@ -110,4 +110,22 @@ SET
   icon = EXCLUDED.icon,
   updated_at = NOW();
 
+-- Page view tracking (privacy-friendly: IP hashed daily, no cookies)
+CREATE TABLE IF NOT EXISTS page_views (
+  id BIGSERIAL PRIMARY KEY,
+  path VARCHAR(500) NOT NULL,
+  method VARCHAR(10) NOT NULL DEFAULT 'GET',
+  status_code SMALLINT,
+  user_agent VARCHAR(500),
+  referer VARCHAR(1000),
+  visitor_hash VARCHAR(64),
+  country VARCHAR(10),
+  duration_ms INTEGER,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_created_at ON page_views(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_page_views_path ON page_views(path);
+CREATE INDEX IF NOT EXISTS idx_page_views_visitor_hash ON page_views(visitor_hash);
+
 -- Landing metrics are computed from real data; no fake seed values.

@@ -9,10 +9,12 @@ import type { NextFunction, Request, RequestHandler, Response } from 'express';
 
 import { pool } from './db/client.js';
 import { renderLandingPage, type LandingPageData } from './landing.js';
+import { tracker } from './middleware/tracker.js';
 import { authRouter } from './routes/auth.js';
 import { categoriesRouter } from './routes/categories.js';
 import { entriesRouter } from './routes/entries.js';
 import { searchRouter } from './routes/search.js';
+import { statsRouter } from './routes/stats.js';
 
 if (!process.env.MY_DOMAIN) {
   process.env.MY_DOMAIN = 'claw-pedia.com';
@@ -86,15 +88,21 @@ async function loadLandingData(): Promise<LandingPageData> {
   const categoryOrder = ['events', 'products', 'agents', 'protocols', 'companies', 'skills'];
 
   try {
-    const [realStatsResult, featuredResult, categoriesResult] = await Promise.all([
-      pool.query<{ total_entries: number; active_contributors: number; queries_today: number }>(
+    const [realStatsResult, viewsTodayResult, featuredResult, categoriesResult] = await Promise.all([
+      pool.query<{ total_entries: number; active_contributors: number }>(
         `
           SELECT
             COUNT(*)::int AS total_entries,
-            COUNT(DISTINCT author_agent_id)::int AS active_contributors,
-            COALESCE(SUM(view_count), 0)::int AS queries_today
+            COUNT(DISTINCT author_agent_id)::int AS active_contributors
           FROM entries
           WHERE is_current = TRUE
+        `
+      ),
+      pool.query<{ views_today: number }>(
+        `
+          SELECT COUNT(*)::int AS views_today
+          FROM page_views
+          WHERE created_at::date = CURRENT_DATE
         `
       ),
       pool.query<{ slug: string; title: string; summary: string | null; icon: string }>(
@@ -128,11 +136,8 @@ async function loadLandingData(): Promise<LandingPageData> {
       )
     ]);
 
-    const realStats = realStatsResult.rows[0] ?? {
-      total_entries: 0,
-      active_contributors: 0,
-      queries_today: 0
-    };
+    const realStats = realStatsResult.rows[0] ?? { total_entries: 0, active_contributors: 0 };
+    const viewsToday = viewsTodayResult.rows[0]?.views_today ?? 0;
 
     const categoryMap = new Map(categoriesResult.rows.map((category) => [category.slug, category]));
 
@@ -140,7 +145,7 @@ async function loadLandingData(): Promise<LandingPageData> {
       stats: {
         totalEntries: realStats.total_entries,
         activeContributors: realStats.active_contributors,
-        queriesToday: realStats.queries_today
+        queriesToday: viewsToday
       },
       featuredEntries:
         featuredResult.rows.length > 0
@@ -175,6 +180,7 @@ async function loadLandingData(): Promise<LandingPageData> {
 app.use(cors());
 app.use(helmetFactory());
 app.use(express.json({ limit: '1mb' }));
+app.use(tracker);
 
 app.get('/', async (req, res) => {
   const protocol = req.header('x-forwarded-proto') ?? req.protocol;
@@ -219,6 +225,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/entries', entriesRouter);
 app.use('/api/v1/search', searchRouter);
 app.use('/api/v1/categories', categoriesRouter);
+app.use('/api/v1/stats', statsRouter);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'not_found', hint: 'Route not found.' });
